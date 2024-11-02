@@ -1,0 +1,9 @@
+name: GraphMC-2
+version: '1.0-SNAPSHOT'
+main: graphmctwo.main.Main
+api-version: '1.21'
+commands:
+  graph:
+    description: 그래프 명령어
+  items:
+    description: 아이템 명령어
