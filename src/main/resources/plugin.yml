@@ -1,6 +1,6 @@
 name: GraphMC-2
 version: '1.0-SNAPSHOT'
-main: graphmctwo.main.Main
+main: graphmctwo.main.GraphMC
 api-version: '1.21'
 commands:
   graph:
