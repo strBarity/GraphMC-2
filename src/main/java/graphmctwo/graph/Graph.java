@@ -60,12 +60,17 @@ public class Graph {
                 for (double i = 0.0; i < GraphHandler.getGraphRadius() * GraphHandler.getGraphAccuracy(); i++) {
                     GraphHandler.setLoadingBar(i / (GraphHandler.getGraphRadius() * GraphHandler.getGraphAccuracy()));
                     double x = MathPlus.roundToNthDecimal((i / GraphHandler.getGraphAccuracy()) - (GraphHandler.getGraphRadius() / 2));
-                    double y = MathPlus.roundToNthDecimal(FunctionCalculator.evaluate(expression.replace("x", "(" + x + ")"))) + GraphHandler.getGraphOrigin().getY();
+                    double y = MathPlus.roundToNthDecimal(FunctionCalculator.evaluate(expression.replace("x", "(" + x + ")")));
                     if (Double.isNaN(y) || Math.abs(y) > GraphHandler.getGraphRadius() / 2) {
+                        if (y > 0) {
+                            values.put(x, GraphHandler.getGraphRadius() / 2);
+                        } else if (y < 0) {
+                            values.put(x, GraphHandler.getGraphRadius() / -2);
+                        }
                         continue;
                     }
                     values.put(x, y);
-                    Location l = new Location(GraphHandler.getGraphOrigin().getWorld(), GraphHandler.getGraphOrigin().getX() + x + 0.5, GraphHandler.getGraphOrigin().getY() + y + 0.5, GraphHandler.getGraphOrigin().getZ() + 1.05);
+                    Location l = new Location(GraphHandler.getGraphOrigin().getWorld(), GraphHandler.getGraphOrigin().getX() + x + 0.5, GraphHandler.getGraphOrigin().getY() + y + 0.5, GraphHandler.getGraphOrigin().getZ() + 1.15);
                     Marker mk = Objects.requireNonNull(GraphHandler.getGraphOrigin().getWorld().spawn(l, Marker.class));
                     mk.setGravity(false);
                     mk.setCustomNameVisible(false);

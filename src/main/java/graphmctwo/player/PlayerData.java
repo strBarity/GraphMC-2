@@ -9,12 +9,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerData {
     private Graph selectedGraph;
+    private Graph secondGraph;
     private double selectedDefiniteIntegralPoint;
     private static final Map<Player, PlayerData> PLAYER_DATA_MAP = new ConcurrentHashMap<>();
 
-    public PlayerData(Graph selectedGraph, double selectedDefiniteIntegralPoint) {
+    public PlayerData(Graph selectedGraph, Graph secondGraph, double selectedDefiniteIntegralPoint) {
         this.selectedGraph = selectedGraph;
+        this.secondGraph = secondGraph;
         this.selectedDefiniteIntegralPoint = selectedDefiniteIntegralPoint;
+    }
+
+
+    public Graph getSecondGraph() {
+        return secondGraph;
+    }
+
+    public void setSecondGraph(Graph secondGraph) {
+        this.secondGraph = secondGraph;
     }
 
     public static PlayerData getPlayerData(Player p) {
@@ -22,7 +33,7 @@ public class PlayerData {
     }
 
     public static void createPlayerData(Player p) {
-        PLAYER_DATA_MAP.put(p, new PlayerData(null, 0));
+        PLAYER_DATA_MAP.put(p, new PlayerData(null, null, 0));
     }
 
     public Graph getSelectedGraph() {

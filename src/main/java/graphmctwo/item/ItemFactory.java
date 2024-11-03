@@ -1,6 +1,7 @@
 package graphmctwo.item;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -21,11 +22,11 @@ public class ItemFactory {
     public static @NotNull ItemStack createItem(Material type, String name, @Nullable List<String> lore, @Nullable Map<Enchantment, Integer> enchant, int amount, boolean isShiny) {
         ItemStack i = new ItemStack(type, amount);
         ItemMeta m = i.getItemMeta();
-        m.displayName(Component.text("§r").append(Component.text(name)));
+        m.displayName((Component.text(name, null, TextDecoration.ITALIC.withState(false).decoration())));
         if (lore != null) {
             List<Component> finalLore = new ArrayList<>();
             for (String s : lore) {
-                finalLore.add(Component.text("§f" + s));
+                finalLore.add(Component.text(s, null, TextDecoration.ITALIC.withState(false).decoration()));
             }
             m.lore(finalLore);
         }

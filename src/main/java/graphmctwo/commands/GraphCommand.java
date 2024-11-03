@@ -15,6 +15,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -102,14 +103,16 @@ public class GraphCommand implements TabExecutor {
         GraphHandler.setGraphSize(Float.parseFloat(strings[1]));
         commandSender.sendMessage(Main.INDEX + "그래프의 굵기를 §e" + GraphHandler.getGraphSize() + SET);
         config.set(SIZE, Float.parseFloat(strings[1]));
+        refreshAllActiveGraphs();
     }
 
     private static void originCommand(CommandSender commandSender, String @NotNull [] strings) {
         if (strings.length == 1) {
-            commandSender.sendMessage(Main.INDEX + "현재 그래프의 원점은 §e(§a" + GraphHandler.getGraphOrigin().getWorld() + COMMA + GraphHandler.getGraphOrigin().getX() + COMMA + GraphHandler.getGraphOrigin().getY() + COMMA + GraphHandler.getGraphOrigin().getZ() + "§e) 입니다.");
+            commandSender.sendMessage(Main.INDEX + "현재 그래프의 원점은 §e(§a" + GraphHandler.getGraphOrigin().getWorld().getName() + COMMA + GraphHandler.getGraphOrigin().getX() + COMMA + GraphHandler.getGraphOrigin().getY() + COMMA + GraphHandler.getGraphOrigin().getZ() + "§e) 입니다.");
             return;
-        } else if (strings.length <= 4) {
+        } else if (strings.length < 4) {
             commandSender.sendMessage(Main.INDEX + "§c좌표가 올바르지 않습니다.");
+            return;
         } else if (NumberParser.isNotDouble(strings[1]) || NumberParser.isNotDouble(strings[2]) || NumberParser.isNotDouble(strings[3])) {
             commandSender.sendMessage(NOT_NUMBER);
             return;
@@ -117,6 +120,7 @@ public class GraphCommand implements TabExecutor {
         GraphHandler.setGraphOrigin(new Location(GraphHandler.getGraphOrigin().getWorld(), Double.parseDouble(strings[1]), Double.parseDouble(strings[2]), Double.parseDouble(strings[3])));
         commandSender.sendMessage(Main.INDEX + "그래프의 원점을 §e(§a" + GraphHandler.getGraphOrigin().getWorld().getName() + COMMA + GraphHandler.getGraphOrigin().getX() + COMMA + GraphHandler.getGraphOrigin().getY() + COMMA + GraphHandler.getGraphOrigin().getZ() + "§e) §f(으)로 설정했습니다.");
         config.set(ORIGIN, GraphHandler.getGraphOrigin().getWorld().getName() + "," + GraphHandler.getGraphOrigin().getX() + "," + GraphHandler.getGraphOrigin().getY() + "," + GraphHandler.getGraphOrigin().getZ());
+        refreshAllActiveGraphs();
     }
 
     private static void radiusCommand(CommandSender commandSender, String @NotNull [] strings) {
@@ -130,6 +134,7 @@ public class GraphCommand implements TabExecutor {
         GraphHandler.setGraphRadius(Double.parseDouble(strings[1]));
         commandSender.sendMessage(Main.INDEX + "그래프의 반경을 §e" + GraphHandler.getGraphRadius() + SET);
         config.set(RADIUS, Double.parseDouble(strings[1]));
+        refreshAllActiveGraphs();
     }
 
     private static void accuracyCommand(CommandSender commandSender, String @NotNull [] strings) {
@@ -140,6 +145,7 @@ public class GraphCommand implements TabExecutor {
         GraphHandler.setGraphAccuracy(Double.parseDouble(strings[1]));
         commandSender.sendMessage(Main.INDEX + "그래프의 정확도를 §e" + GraphHandler.getGraphAccuracy() + SET);
         config.set(ACCURACY, Double.parseDouble(strings[1]));
+        refreshAllActiveGraphs();
     }
 
     private static void addCommand(CommandSender commandSender, String @NotNull [] strings) {
@@ -152,6 +158,12 @@ public class GraphCommand implements TabExecutor {
         } catch (IllegalArgumentException e) {
             commandSender.sendMessage(Main.INDEX + "§c그래프의 식이 올바르지 않습니다 - " + e.getCause().getMessage());
             return;
+        }
+        for (Graph graph : GraphHandler.getGraphs()) {
+            if (graph.getUserExpression().equals(new Graph(strings[1]).getUserExpression())) {
+                commandSender.sendMessage(Main.INDEX + "§c해당 식의 그래프가 이미 존재합니다.");
+                return;
+            }
         }
         commandSender.sendMessage(Main.INDEX + GRAPH + GraphHandler.addGraph(strings[1]).getUserExpression() + "§f를 추가했습니다.");
     }
@@ -171,6 +183,10 @@ public class GraphCommand implements TabExecutor {
             if (PlayerData.getPlayerData(player).getSelectedGraph() == graph) {
                 PlayerData.getPlayerData(player).setSelectedGraph(null);
                 player.sendMessage(Main.INDEX + "§c선택된 그래프가 제거되어 자동으로 선택이 해제되었습니다.");
+            }
+            if (PlayerData.getPlayerData(player).getSecondGraph() == graph) {
+                PlayerData.getPlayerData(player).setSecondGraph(null);
+                player.sendMessage(Main.INDEX + "§c선택된 두 번째 그래프가 제거되어 자동으로 선택이 해제되었습니다.");
             }
         }
     }
@@ -195,6 +211,23 @@ public class GraphCommand implements TabExecutor {
 
     private static boolean isCallingInvalidGraph(String @NotNull [] strings) {
         return strings.length <= 1 || GraphHandler.getGraph(strings[1]) == null;
+    }
+
+    private static void refreshAllActiveGraphs() {
+        for (Graph graph : GraphHandler.getGraphs()) {
+            if (graph.isGraphVisible()) {
+                graph.toggle();
+                Bukkit.broadcast(Component.text(Main.INDEX + "§7그래프 설정이 변경되어 활성화된 모든 그래프를 새로고침하는 중입니다..."));
+                Bukkit.getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Main.class), () -> {
+                    for (Graph g : GraphHandler.getGraphs()) {
+                        if (g.getExpression().equals(graph.getExpression())) {
+                            g.toggle();
+                        }
+                    }
+                    Bukkit.broadcast(Component.text(Main.INDEX + "§a새로고침이 완료되었습니다."));
+                }, 5L);
+            }
+        }
     }
 
     @Override
