@@ -19,7 +19,7 @@ public class EventListener implements Listener {
      */
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent e) {
-        if (PlayerData.doPlayerDataExists(e.getPlayer())) {
+        if (!PlayerData.doPlayerDataExists(e.getPlayer())) {
             PlayerData.createPlayerData(e.getPlayer());
         }
         e.joinMessage(Component.text(GraphMC.INDEX + "§d").append(e.getPlayer().name()).append(Component.text("§5님이 게임에 참여했습니다.")));

@@ -55,26 +55,28 @@ public class PlayerData {
     }
 
     /**
-     * 플레이어의 데이터를 반환합니다. 이론상으로는 불가능하지만 만약 플레이어의 데이터가 존재하지 않는 경우 새로운 플레이어의 데이터를 기본값으로 만들어 반환합니다.
+     * 플레이어의 데이터를 반환합니다.
      * @param p 데이터를 불러올 플레이어
      * @return <code>p</code>의 플레이어 데이터
+     * @throws PlayerDataNotExistsException 플레아어의 데이터가 없는 경우
      */
     public static @NotNull PlayerData getPlayerData(@NotNull Player p) {
-        return PLAYER_DATA_MAP.getOrDefault(p, createPlayerData(p));
+        if (!PLAYER_DATA_MAP.containsKey(p)) {
+            throw new PlayerDataNotExistsException("플레이어 " + p.getName() + "의 데이터가 존재하지 않습니다.");
+        }
+        return PLAYER_DATA_MAP.get(p);
     }
 
     /**
      * 데이터가 생성되지 않은 플레이어에 한해 플레이어의 데이터를 생성합니다.
-     * 주로 플레이어가 서버에 들어올 때나, 플러그인이 활성화될 때 이미 플레이어가 있는 경우(서버 리로드 등)
-     * 플레이어 데이터를 다시 만들어 주는 역할을 합니다. 반환값은 생성된 플레이어의 데이터입니다.
+     * 주로 플레이어가 서버에 들어올 때 새로운 데이터를 만들거나, 플러그인이
+     * 활성화될 때 이미 플레이어가 있는 경우(서버 리로드 등) 플레이어 데이터를 다시 만들어 주는 역할을 합니다.
      *
      * @param p 데이터를 생성할 플레이어, 데이터는 모두 해당하는 데이터의 기본값으로 처리됨
-     * @return 생성된 플레이어의 데이터
      */
-    public static @NotNull PlayerData createPlayerData(@NotNull Player p) {
+    public static void createPlayerData(@NotNull Player p) {
         PlayerData d = new PlayerData(null, null, 0);
         PLAYER_DATA_MAP.put(p, d);
-        return d;
     }
 
     /**
