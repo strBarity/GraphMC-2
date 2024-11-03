@@ -82,8 +82,7 @@ public class MathPlus {
      */
     public static double definiteIntegral(@NotNull String expression, @NotNull String target, double from, double to) {
         ExprEvaluator evaluator = new ExprEvaluator();
-        expression = expression.replace("e", Double.toString(Math.E))
-                .replace("pi", Double.toString(Math.PI));
+        expression = ExpressionParser.replaceFactorialNotation(ExpressionParser.replaceAbsoluteValues(ExpressionParser.replaceConstants(expression)));
         IExpr definiteIntegral = evaluator.eval("Integrate(" + expression + ", {" + target + ", " + from + ", " + to + "})");
         return Math.abs(definiteIntegral.toDoubleDefault());
     }

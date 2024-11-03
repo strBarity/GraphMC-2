@@ -2,101 +2,24 @@ package graphmctwo.calculator;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * 수식을 계산하는 클래스입니다.
  */
 public class FunctionCalculator {
-    /**
-     * 수학 상수가 저장된 {@link Map}입니다.
-     */
-    private static final HashMap<String, Double> constants = new HashMap<>();
-
-    /*
-     수학 상수 저장, 나중에 추가될 수 있음
-     */
-    static {
-        constants.put("pi", Math.PI);
-        constants.put("e", Math.E);
-    }
-
     /**
      * 주어진 수식 문자열을 입력받아, 최종적인 계산 결과를 반환합니다.
      * @param expression 계산할 수식
      * @return <code>expression</code>을 계산한 결과
      */
     public static double evaluate(@NotNull String expression) {
-        expression = replaceConstants(expression);
-        expression = replaceAbsoluteValues(expression);
-        expression = replaceFactorialNotation(expression);
+        expression = ExpressionParser.replaceConstants(expression);
+        expression = ExpressionParser.replaceAbsoluteValues(expression);
+        expression = ExpressionParser.replaceFactorialNotation(expression);
         try {
             return new Parser(expression).parse();
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("계산할 수 없는 수식: " + expression, e);
         }
-    }
-
-    /**
-     * 수식 문자열에 포함된 수학 상수를 해당하는 상수 값으로 변경합니다.
-     * @param expression 상수를 상수 값으로 변경할 문자열
-     * @return 상수 값으로 변경된 문자열
-     */
-    private static @NotNull String replaceConstants(@NotNull String expression) {
-        for (Map.Entry<String, Double> entry : constants.entrySet()) {
-            expression = expression.replace(entry.getKey(), entry.getValue().toString());
-        }
-        return expression;
-    }
-
-    /**
-     * 수식 문자열에 포함된 |d| 꼴의 절댓값 수식을 abs(d)로 변환합니다.
-     * @param expression |d| 꼴을 abs(d)로 변경할 문자열
-     * @return 모든 |d| 꼴이 abs(d)꼴로 변경된 문자열
-     */
-    private static @NotNull String replaceAbsoluteValues(@NotNull String expression) {
-        StringBuilder result = new StringBuilder();
-        int i = 0;
-        while (i < expression.length()) {
-            if (expression.charAt(i) == '|') {
-                int end = expression.indexOf('|', i + 1);
-                if (end != -1) {
-                    result.append("abs(");
-                    result.append(expression, i + 1, end);
-                    result.append(")");
-                    i = end + 1;
-                } else {
-                    throw new IllegalArgumentException("잘못된 절댓값 표기: " + expression);
-                }
-            } else {
-                result.append(expression.charAt(i));
-                i++;
-            }
-        }
-        return result.toString();
-    }
-
-    /**
-     * 수식 문자열에 포함된 (x)!꼴의 문자열을 fact(x)로 변경합니다.
-     * @param input (x)!꼴을 fact(x)로 바꿀 문자열
-     * @return (x)!꼴이 fact(x)로 변경된 문자열
-     */
-    private static @NotNull String replaceFactorialNotation(@NotNull String input) {
-        Pattern pattern = Pattern.compile("\\(([^)]+)\\)!");
-        Matcher matcher = pattern.matcher(input);
-        StringBuilder result = new StringBuilder();
-        int lastMatchEnd = 0;
-        while (matcher.find()) {
-            result.append(input, lastMatchEnd, matcher.start()); // 일치 전의 부분 추가
-            String xValue = matcher.group(1); // x 값 추출
-            result.append("fact(").append(xValue).append(")"); // fact(x) 추가
-            lastMatchEnd = matcher.end(); // 마지막 매치의 끝 위치 업데이트
-        }
-        result.append(input.substring(lastMatchEnd));
-        return result.toString();
     }
 
     /**

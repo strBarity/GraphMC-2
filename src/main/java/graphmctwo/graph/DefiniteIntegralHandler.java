@@ -78,7 +78,7 @@ public class DefiniteIntegralHandler {
             e = e + "-" + s.getExpression();
             s3 = "§c{" + g.getDisplayExpression() + "§c} §b- §c{" + s.getDisplayExpression() + "§c}";
         }
-        d = MathPlus.roundToNthDecimal(MathPlus.definiteIntegral(e, "x", firstPoint, loc.getX()));
+         d = MathPlus.roundToNthDecimal(MathPlus.definiteIntegral(e, "x", firstPoint, loc.getX()));
         s1 = d == 0.0 ? "§c계산 불가" : Double.toString(d);
         try {
             if (loc.getX() > firstPoint) {
